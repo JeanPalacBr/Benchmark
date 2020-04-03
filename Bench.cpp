@@ -16,6 +16,7 @@
 #include <windows.h>
 
 
+
 using namespace std;
 
 void primos(int inicial, int ultimo) {
@@ -122,22 +123,20 @@ int main() {
     void ();
     double tiempo1[2], tiempo2[2], tiempo3[2], tiempo4[2], tiempo5[2];
     double segundos, tte, ttt, ttl = 0;
-    double calificacion_hdd = 0;
+    double calificacion_hdd, calificacion_cpu, cal_pcword, cal_progr, cal_data = 0;
     typedef std::chrono::high_resolution_clock Time;
     typedef std::chrono::milliseconds ms;
     typedef std::chrono::duration<double> fsec;
     auto tpr0 = Time::now();
     auto tpr1 = Time::now();
     fsec tprt = tpr1 - tpr0;
-
-    int op, cantidad_archivos = 0;
+    int perfil, cantidad_archivos = 0;
     cout << "------------------------------------" << endl;
     cout << "BENCHMARK " << endl;
     cout << "------------------------------------" << endl;
     cout << "A continuación se realizará:" << endl;
     cout << "1. Analisis de  CPU" << endl;
     cout << "2. Analisis de disco duro" << endl;
-
     cout << "------------------------------------" << endl;
     cout << "REALIZANDO PRUEBA DE CPU" << endl;
     cout << "------------------------------------" << endl;
@@ -167,18 +166,45 @@ int main() {
     tpr1 = Time::now();
     tprt = tpr1 - tpr0;
     cout << "------------------------------------" << endl;
-    cout << "PRUEBA BUSQUEDA DE PRIMOS TERMINADA" << endl;
-    cout << "duración: "<<tprt.count()<<" segundos"<<endl;
-    cout << "------------------------------------" << endl<<endl;
-    
-        
+    cout<< "PRUEBA BUSQUEDA DE PRIMOS TERMINADA" << endl;
+    cout<< "duración: " << tprt.count() << " segundos" << endl;
+    cout<< "------------------------------------" << endl << endl;
+    cout<< "------------------------------------" << endl;
+    cout<< "PRUEBA DE BUSQUEDA DE DIGITOS DE PI" << endl;
+    cout<< "------------------------------------" << endl;
+
+
+    //ESPACIO PARA COLOCAR LA PRUEBA DE DIGITOS DE PI
+
+
     cout << "------------------------------------" << endl;
-    cout << "REALIZANDO PRUEBA DE DISCO DURO" << endl;
+    cout<< "PRUEBA BUSQUEDA DE DIGITOS DE PI TERMINADA" << endl;
+    cout<< "duración: " << tprt.count() << " segundos" << endl; //CAMBIAR POR DURACION DE EJECUCION
+    cout<< "------------------------------------" << endl << endl;
+
     cout << "------------------------------------" << endl;
-    cout << "PRUEBA DE LECTURA Y ESCRITURA" << endl;
+
+    cout<< "------------------------------------" << endl;
+    cout<< "PRUEBA RESOLUCIÓN DE LABERINTO " << endl;
+    cout<< "------------------------------------" << endl;
+
+
+    //ESPACIO PARA COLOCAR LA SOLUCION DE LABERINTO
+
+
     cout << "------------------------------------" << endl;
-    
-    creayleearchivos(1024, tiempo1);
+    cout<< "PRUEBA RESOLUCIÓN DE LABERINTO TERMINADA" << endl;
+    cout<< "duración: " << tprt.count() << " segundos" << endl; //CAMBIAR POR DURACION DE EJECUCION
+    cout<< "------------------------------------" << endl << endl;
+
+
+    cout<< "------------------------------------" << endl;
+    cout<< "REALIZANDO PRUEBA DE DISCO DURO" << endl;
+    cout<< "------------------------------------" << endl;
+    cout<< "PRUEBA DE LECTURA Y ESCRITURA" << endl;
+    cout<< "------------------------------------" << endl;
+    calificacion_cpu = (tprt.count()*0.5);
+            creayleearchivos(1024, tiempo1);
     creayleearchivos(10240, tiempo2);
     creayleearchivos(102400, tiempo3);
     creayleearchivos(512000, tiempo4);
@@ -212,7 +238,28 @@ int main() {
     cout << "------------------------------------" << endl;
     calificacion_hdd = (((cantidad_archivos / segundos)*0.5)+(ttt * 0.5)) / 2;
     cout << "LA CALIFICACIÓN DE SU DISCO DURO EN LA PRUEBA FUE: " << calificacion_hdd << endl;
+    cout << "------------------------------------" << endl;
+    cout << "RESULTADOS SEGUN CADA PERFIL" << endl;
 
+    cout << "Computador para “internet y documentos de Word”" << endl;
+
+    cal_pcword = (calificacion_cpu + calificacion_hdd) / 1.8;
+    if (cal_pcword > 100) {
+        cal_pcword = 95;
+    }
+    cout << "La calificación es:" << cal_pcword<< endl;
+    cout << "Computador para programar" << endl;
+    cal_progr = (calificacion_hdd*1.2 + calificacion_cpu * 0.8) / 2.5;
+    if (cal_progr > 100) {
+        cal_progr = 95;
+    }
+    cout << "La calificación es:" << cal_progr<< endl;
+    cout << "Computador para procesar analíticas de datos." << endl;
+    if (cal_data > 100) {
+        cal_data = 95;
+    }
+    cal_data = (calificacion_hdd * 1.3 + calificacion_cpu * 0.7) / 2.8;
+    cout << "La calificación es:" << cal_data<< endl;
     return 0;
     system("pause");
 }
