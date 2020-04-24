@@ -14,10 +14,97 @@
 #include <fstream>
 #include <ctime>
 #include <windows.h>
-
-
+#include <math.h>
+#include <stdio.h>
+#include <iostream>
+#include <chrono>
+#include <sstream>
+#include <iostream>
+#include <fstream> 
+#define N 250000
 
 using namespace std;
+
+const int x0 = 1, y0 = 0, xf = 211, yf = 212;
+const char MURO = '1';
+const char LIBRE = '0';
+const char USR = '2';
+const int TAMLAB = 213;
+char lab[TAMLAB][TAMLAB];
+
+void readLab() {
+    char lTx[639][639];
+    ifstream inFile;
+    inFile.open("maze.txt");
+    if (!inFile) {
+        cerr << "Unable to open file datafile.txt";
+        exit(1); // call system to stop
+    }
+    string x;
+    int c = 0;
+    while (inFile >> x) {
+        for (int i = 0; i < x.length(); i++) {
+            if (x[i] == '1') {
+                lTx[c][i] = MURO;
+            } else {
+                lTx[c][i] = LIBRE;
+            }
+        }
+        c++;
+    }
+    for (int i = 0; i < 213; i++) {
+        for (int j = 0; j < 213; j++) {
+            if (lTx[3 * i][3 * j] == MURO || lTx[3 * i + 1][3 * j] == MURO || lTx[3 * i + 2][3 * j] == MURO ||
+                    lTx[3 * i][3 * j + 1] == MURO || lTx[3 * i + 1][3 * j + 1] == MURO || lTx[3 * i + 2][3 * j + 1] == MURO ||
+                    lTx[3 * i][3 * j + 2] == MURO || lTx[3 * i + 1][3 * j + 2] == MURO || lTx[3 * i + 2][3 * j + 2] == MURO) {
+                lab[i][j] = MURO;
+            } else {
+                lab[i][j] = LIBRE;
+            }
+        }
+    }
+    inFile.close();
+}
+
+void writeLab(string name) {
+    ofstream file(name);
+    for (int i = 0; i < TAMLAB; i++) {
+        for (int j = 0; j < TAMLAB; j++) {
+            file << lab[i][j];
+        }
+        file << endl;
+    }
+    file.close();
+}
+
+void cleanLab() {
+    for (int i = 0; i < TAMLAB; i++) {
+        for (int j = 0; j < TAMLAB; j++) {
+            if (lab[i][j] == '1') lab[i][j] = '0';
+        }
+    }
+}
+
+bool solve(int X, int Y) {
+    lab[Y][X] = USR;
+    if (X == xf && Y == yf) {
+        return true;
+    }
+    if (X > 0 && lab[Y][X - 1] == LIBRE && solve(X - 1, Y)) {
+        return true;
+    }
+    if (X < TAMLAB && lab[Y][X + 1] == LIBRE && solve(X + 1, Y)) {
+        return true;
+    }
+    if (Y > 0 && lab[Y - 1][X] == LIBRE && solve(X, Y - 1)) {
+        return true;
+    }
+    if (Y < TAMLAB && lab[Y + 1][X] == LIBRE && solve(X, Y + 1)) {
+        return true;
+    }
+    lab[Y][X] = MURO;
+    return false;
+}
 
 void primos(int inicial, int ultimo) {
     if (inicial == 3) {
@@ -89,7 +176,7 @@ int copiaarchivos(double segundos) {
     fsec fssaux = t1 - t0;
 
     int cont = 0;
-
+    
     system("mkdir \\prueba1");
     system("mkdir \\prueba2");
     string cadena = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sagittis est vitae risus dapibus, in viverra risus imperdiet."
@@ -102,14 +189,14 @@ int copiaarchivos(double segundos) {
             "sit amet feugiat felis. Pellentesque erat risus, pretium eu placerat eget, porta gravida velit. Fusce vel arcu velit sed.";
     do {
         nombrearchivo = "pruebade" + to_string(cont) + ".txt";
-        ofstream fs("prueba1\\" + nombrearchivo);
+        ofstream fs("C:\\prueba1\\" + nombrearchivo);
         for (int i = 0; i < 4; i++) {
             fs << cadena;
         }
         fs.close();
         auto t0 = Time::now();
-        copia1 = "prueba1/" + nombrearchivo;
-        copia2 = "prueba2/" + nombrearchivo;
+        copia1 = "C:/prueba1/" + nombrearchivo;
+        copia2 = "C:/prueba2/" + nombrearchivo;
         CopyFileA(copia1.c_str(), copia2.c_str(), TRUE);
         auto t1 = Time::now();
         fss = t1 - t0;
@@ -128,8 +215,13 @@ int main() {
     typedef std::chrono::milliseconds ms;
     typedef std::chrono::duration<double> fsec;
     auto tpr0 = Time::now();
+    auto tmz0 = Time::now();
     auto tpr1 = Time::now();
-    fsec tprt = tpr1 - tpr0;
+    auto tmz1 = Time::now();
+    auto tdp0 = Time::now();
+    auto tdp1 = Time::now();
+    fsec tprt, tmzt, tdpt = tpr1 - tpr0;
+
     int perfil, cantidad_archivos = 0;
     cout << "------------------------------------" << endl;
     cout << "BENCHMARK " << endl;
@@ -166,45 +258,111 @@ int main() {
     tpr1 = Time::now();
     tprt = tpr1 - tpr0;
     cout << "------------------------------------" << endl;
-    cout<< "PRUEBA BUSQUEDA DE PRIMOS TERMINADA" << endl;
-    cout<< "duración: " << tprt.count() << " segundos" << endl;
-    cout<< "------------------------------------" << endl << endl;
-    cout<< "------------------------------------" << endl;
-    cout<< "PRUEBA DE BUSQUEDA DE DIGITOS DE PI" << endl;
-    cout<< "------------------------------------" << endl;
+    cout << "PRUEBA BUSQUEDA DE PRIMOS TERMINADA" << endl;
+    cout << "duración: " << tprt.count() << " segundos" << endl;
+    cout << "------------------------------------" << endl << endl;
+    cout << "------------------------------------" << endl;
+    cout << "PRUEBA DE BUSQUEDA DE DIGITOS DE PI" << endl;
+    cout << "------------------------------------" << endl;
 
+    int len = floor(10 * N / 3) + 1;
+    long long A[len];
 
-    //ESPACIO PARA COLOCAR LA PRUEBA DE DIGITOS DE PI
+    for (int i = 0; i < len; ++i) {
+        A[i] = (long long) 2;
+    }
+
+    long long nines = (long long) 0;
+    long long predigit = (long long) 0;
+    std::string number;
+    std::stringstream strstream;
+    tdp0 = Time::now();
+    for (int j = 1; j < N + 1; ++j) {
+        long long q = 0;
+
+        for (int i = len; i > 0; --i) {
+            long long x = 10 * A[i - 1] + q * (long long) i;
+            A[i - 1] = x % (2 * i - 1);
+            q = x / (2 * (long long) i - 1);
+        }
+
+        A[0] = q % (long long) 10;
+        q = q / (long long) 10;
+
+        if ((long long) 9 == q) {
+            nines = nines + (long long) 1;
+        } else if ((long long) 10 == q) {
+            strstream << predigit + (long long) 1;
+
+            for (int k = 0; k < nines; ++k) {
+                strstream << 0;
+            }
+            predigit, nines = 0;
+        } else {
+            strstream << predigit;
+            predigit = q;
+
+            if (0 != nines) {
+                for (long long k = (long long) 0; (long long) k < nines; k = k + (long long) 1) {
+                    strstream << 9;
+                }
+
+                nines = (long long) 0;
+            }
+        }
+    }
+    tdp1 = Time::now();
+    tdpt = tdp1 - tdp0;
+    strstream << predigit;
+    strstream >> number;
+
+    std::ofstream outfile("Digits_PI.txt");
+    outfile << "Executiontime: ";
+    outfile << tdpt.count() << std::endl;
+    outfile << number << std::endl;
+    outfile.close();
+    printf("Terminado");
 
 
     cout << "------------------------------------" << endl;
-    cout<< "PRUEBA BUSQUEDA DE DIGITOS DE PI TERMINADA" << endl;
-    cout<< "duración: " << tprt.count() << " segundos" << endl; //CAMBIAR POR DURACION DE EJECUCION
-    cout<< "------------------------------------" << endl << endl;
+    cout << "PRUEBA BUSQUEDA DE DIGITOS DE PI TERMINADA" << endl;
+    cout << "SE HA GENERADO UN ARCHIVO CON LOS RESULTADOS EN LA CARPETA RAIZ" << endl;
+    cout << "duración: " <<tdpt.count()<< " segundos" << endl;
+    cout << "------------------------------------" << endl << endl;
 
     cout << "------------------------------------" << endl;
 
-    cout<< "------------------------------------" << endl;
-    cout<< "PRUEBA RESOLUCIÓN DE LABERINTO " << endl;
-    cout<< "------------------------------------" << endl;
-
-
-    //ESPACIO PARA COLOCAR LA SOLUCION DE LABERINTO
-
-
     cout << "------------------------------------" << endl;
-    cout<< "PRUEBA RESOLUCIÓN DE LABERINTO TERMINADA" << endl;
-    cout<< "duración: " << tprt.count() << " segundos" << endl; //CAMBIAR POR DURACION DE EJECUCION
-    cout<< "------------------------------------" << endl << endl;
+    cout << "PRUEBA RESOLUCIÓN DE LABERINTO " << endl;
+    cout << "------------------------------------" << endl;
 
+    tmz0 = Time::now();
+    readLab();
+    writeLab("mazeSmall.txt");
+    if (solve(x0, y0)) {
+        cout << "Resuelto.";
+    }
+    cleanLab();
+    writeLab("mazeSolution.txt");
+    tmz1 = Time::now();
+    tmzt = tmz1 - tmz0;
 
-    cout<< "------------------------------------" << endl;
-    cout<< "REALIZANDO PRUEBA DE DISCO DURO" << endl;
-    cout<< "------------------------------------" << endl;
-    cout<< "PRUEBA DE LECTURA Y ESCRITURA" << endl;
-    cout<< "------------------------------------" << endl;
-    calificacion_cpu = (tprt.count()*0.5);
-            creayleearchivos(1024, tiempo1);
+    calificacion_cpu = (((6.89794/(tprt.count()))*0.5)+(((0.0600607)/tmzt.count())*0.25)+(((2889.71)/(tdpt.count()))*0.5))*60;
+    cout << "------------------------------------" << endl;
+    cout << "PRUEBA RESOLUCIÓN DE LABERINTO TERMINADA" << endl;
+    cout << "SE HA GENERADO UN ARCHIVO EN LA CARPETA RAIZ CON LA SOLUCIÓN" << endl;
+    cout << "duración: " << tmzt.count() << " segundos" << endl; 
+    cout << "------------------------------------" << endl << endl;
+    cout << "LA CALIFICACIÓN DE LA CPU ES: " <<calificacion_cpu<<endl;
+    cout << "------------------------------------" << endl;
+    cout << "REALIZANDO PRUEBA DE DISCO DURO" << endl;
+    cout << "------------------------------------" << endl;
+    cout << "PRUEBA DE LECTURA Y ESCRITURA" << endl;
+    cout << "------------------------------------" << endl;
+    
+
+    
+    creayleearchivos(1024, tiempo1);
     creayleearchivos(10240, tiempo2);
     creayleearchivos(102400, tiempo3);
     creayleearchivos(512000, tiempo4);
@@ -236,33 +394,31 @@ int main() {
     cout << "------------------------------------" << endl;
     cout << "PRUEBA DE DISCO DURO TERMINADA" << endl;
     cout << "------------------------------------" << endl;
-    calificacion_hdd = (((cantidad_archivos / segundos)*0.5)+(ttt * 0.5)) / 2;
+    calificacion_hdd = ((cantidad_archivos/16823.6667)*0.5+(59.751/ttt)*0.5)*60;
     cout << "LA CALIFICACIÓN DE SU DISCO DURO EN LA PRUEBA FUE: " << calificacion_hdd << endl;
     cout << "------------------------------------" << endl;
     cout << "RESULTADOS SEGUN CADA PERFIL" << endl;
 
     cout << "Computador para “internet y documentos de Word”" << endl;
 
-    cal_pcword = (calificacion_cpu + calificacion_hdd) / 1.8;
+    cal_pcword = (calificacion_cpu*0.5 + calificacion_hdd*0.5)*1.2;
     if (cal_pcword > 100) {
-        cal_pcword = 95;
+        cal_pcword = 100;
     }
-    cout << "La calificación es:" << cal_pcword<< endl;
+    cout << "La calificación es:" << cal_pcword << endl;
     cout << "Computador para programar" << endl;
-    cal_progr = (calificacion_hdd*1.2 + calificacion_cpu * 0.8) / 2.5;
+    cal_progr = (calificacion_hdd * 0.6 + calificacion_cpu * 0.4);
     if (cal_progr > 100) {
-        cal_progr = 95;
+        cal_progr = 100;
     }
-    cout << "La calificación es:" << cal_progr<< endl;
+    cout << "La calificación es:" << cal_progr << endl;
     cout << "Computador para procesar analíticas de datos." << endl;
+    cal_data = (calificacion_hdd * 0.7 + calificacion_cpu * 0.3) / 1.1;
     if (cal_data > 100) {
-        cal_data = 95;
+        cal_data = 100;
     }
-    cal_data = (calificacion_hdd * 1.3 + calificacion_cpu * 0.7) / 2.8;
-    cout << "La calificación es:" << cal_data<< endl;
+ 
+    cout << "La calificación es:" << cal_data << endl;
     return 0;
     system("pause");
 }
-
-
-
